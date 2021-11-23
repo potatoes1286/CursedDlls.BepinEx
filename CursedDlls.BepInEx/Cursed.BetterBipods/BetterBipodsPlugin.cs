@@ -46,7 +46,6 @@ namespace Cursed.BetterBipods
 		 * Skiddie prevention
 		 */
         [HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(string), typeof(int), typeof(Action<int, int>) })]
-        [HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(SteamLeaderboard_t), typeof(int) })]
         [HarmonyPrefix]
         public static bool HSM_UpdateScore()
         {

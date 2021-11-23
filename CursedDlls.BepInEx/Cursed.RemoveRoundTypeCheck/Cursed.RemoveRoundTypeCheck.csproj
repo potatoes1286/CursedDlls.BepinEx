@@ -12,6 +12,9 @@
 		<OutputPath>$(SolutionDir)..\bin\BepInEx\plugins\CursedDlls</OutputPath>
     <DebugType>none</DebugType>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>F:\GitHub\CursedDLLsRemoveChecks\Output\</OutputPath>
+  </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="0Harmony">

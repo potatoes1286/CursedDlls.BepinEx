@@ -11,6 +11,10 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutputPath>$(SolutionDir)..\bin\BepInEx\plugins\CursedDlls</OutputPath>
     <DebugType>none</DebugType>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

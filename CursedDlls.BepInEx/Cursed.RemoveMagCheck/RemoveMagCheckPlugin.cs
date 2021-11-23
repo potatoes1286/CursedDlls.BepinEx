@@ -29,11 +29,8 @@ namespace RemoveMagCheck
 
             Logger = base.Logger;
 
-            if (File.Exists($@"{Paths.BepInExRootPath}\monomod\CursedDlls\Assembly-CSharp.Cursed.RemoveRoundTypeCheck.mm.dll"))
-                Harmony.CreateAndPatchAll(typeof(RemoveMagCheckPlugin));
-            else
-                Logger.LogError(@"This plugin requires the Assembly-CSharp.Cursed.RemoveRoundType.mm.dll MonoMod patch to function properly! Download and install it from https://github.com/drummerdude2003/CursedDlls.BepinEx/.");
-        }
+            Harmony.CreateAndPatchAll(typeof(RemoveMagCheckPlugin));
+		}
 
         public static bool TypeCheck(bool condition)
         {
@@ -85,7 +82,6 @@ namespace RemoveMagCheck
 		 * Skiddie prevention
 		 */
 		[HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(string), typeof(int), typeof(Action<int, int>) })]
-		[HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(SteamLeaderboard_t), typeof(int) })]
 		[HarmonyPrefix]
 		public static bool HSM_UpdateScore()
 		{
