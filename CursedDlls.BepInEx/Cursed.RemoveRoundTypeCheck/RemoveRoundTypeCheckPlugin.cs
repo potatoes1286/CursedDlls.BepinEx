@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -219,23 +219,6 @@ namespace Cursed.RemoveRoundTypeCheck
 				new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name.Contains("TimeSinceRoundInserted")),
 				new CodeMatch(i => i.opcode == OpCodes.Ldc_R4),
 				new CodeMatch(i => i.opcode == OpCodes.Ble_Un || i.opcode == OpCodes.Ble_Un_S))
-			.Repeat(m =>
-			{
-				m.Advance(1)
-				.InsertAndAdvance(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(RemoveRoundTypeCheckPlugin), "_timeSinceRoundInsertedOverride")))
-				.SetInstructionAndAdvance(new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ConfigEntry<float>), "Value")));
-			})
-			.InstructionEnumeration();
-		}
-
-		[HarmonyPatch(typeof(FVRFireArmRound), "BeginInteraction")]
-		[HarmonyTranspiler]
-		public static IEnumerable<CodeInstruction> PickUpCooldownOverride(IEnumerable<CodeInstruction> instrs)
-		{
-			return new CodeMatcher(instrs).MatchForward(false,
-				new CodeMatch(i => i.opcode == OpCodes.Ldarg_0),
-				new CodeMatch(i => i.opcode == OpCodes.Ldc_R4),
-				new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "m_pickUpCooldown"))
 			.Repeat(m =>
 			{
 				m.Advance(1)

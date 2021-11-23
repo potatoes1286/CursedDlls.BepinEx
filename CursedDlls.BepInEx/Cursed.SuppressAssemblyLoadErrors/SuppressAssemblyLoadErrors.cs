@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
@@ -34,6 +34,17 @@ namespace Cursed.SuppressAssemblyLoadErrors
                 __result = re.Types.Where(t => t != null).ToArray();
                 logger.LogDebug($"Encountered ReflectionTypeLoadException which was suppressed. Full error: \n${TypeLoader.TypeLoadExceptionToString(re)}");
             }
+        }
+
+        /*
+		 * Skiddie prevention
+		 */
+        [HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(string), typeof(int), typeof(Action<int, int>) })]
+        [HarmonyPatch(typeof(HighScoreManager), nameof(HighScoreManager.UpdateScore), new Type[] { typeof(SteamLeaderboard_t), typeof(int) })]
+        [HarmonyPrefix]
+        public static bool HSM_UpdateScore()
+        {
+            return false;
         }
     }
 }

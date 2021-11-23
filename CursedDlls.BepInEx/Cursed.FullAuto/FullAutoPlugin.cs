@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +7,10 @@ using FistVR;
 using HarmonyLib;
 using RUST.Steamworks;
 using Steamworks;
+using System.Reflection.Emit;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using UnityEngine;
 
 [assembly: AssemblyVersion("1.4")]
 namespace Cursed.FullAuto
@@ -22,16 +26,34 @@ namespace Cursed.FullAuto
             Harmony.CreateAndPatchAll(typeof(FullAutoPlugin));
         }
 
-        [HarmonyPatch(typeof(ClosedBoltWeapon), "Awake")]
-        [HarmonyPostfix]
-        public static void PostAwake(ClosedBoltWeapon __instance)
-        {
-            if (__instance.FireSelector_Modes.Length == 0) return;
-            if (__instance.FireSelector_Modes.Any(t => t.ModeType == ClosedBoltWeapon.FireSelectorModeType.FullAuto))
-                return;
+		[HarmonyPatch(typeof(LeverActionFirearm), "UpdateInteraction")]
+		[HarmonyTranspiler]
+		public static IEnumerable<CodeInstruction> leverActionSlamFire(IEnumerable<CodeInstruction> instrs)
+		{
+			return new CodeMatcher(instrs).MatchForward(false,
+				new CodeMatch(i => i.opcode == OpCodes.Ldarg_0),
+				new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "m_hasTriggeredUpSinceBegin"),
+				new CodeMatch(i => i.opcode == OpCodes.Brfalse))
+			.Repeat(m =>
+			{
+				m.SetOpcodeAndAdvance(OpCodes.Nop)
+				.SetOpcodeAndAdvance(OpCodes.Nop)
+				.SetOpcodeAndAdvance(OpCodes.Nop);
+			})
+			.InstructionEnumeration();
+		}
 
-            var modes = new List<ClosedBoltWeapon.FireSelectorMode>(__instance.FireSelector_Modes);
-            var full_auto = new ClosedBoltWeapon.FireSelectorMode
+
+		[HarmonyPatch(typeof(ClosedBoltWeapon), "Awake")]
+		[HarmonyPostfix]
+		public static void PostAwake(ClosedBoltWeapon __instance)
+		{
+			if (__instance.FireSelector_Modes.Length == 0) return;
+			if (__instance.FireSelector_Modes.Any(t => t.ModeType == ClosedBoltWeapon.FireSelectorModeType.FullAuto))
+				return;
+
+			var modes = new List<ClosedBoltWeapon.FireSelectorMode>(__instance.FireSelector_Modes);
+				var full_auto = new ClosedBoltWeapon.FireSelectorMode
             {
                 ModeType = ClosedBoltWeapon.FireSelectorModeType.FullAuto,
                 SelectorPosition = __instance.FireSelector_Modes[__instance.FireSelector_Modes.Length - 1]

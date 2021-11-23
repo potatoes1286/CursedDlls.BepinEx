@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -47,6 +47,46 @@ namespace Cursed.RemoveAttachmentChecks
          * Type patches
          * Patch instructions that are simiilar to Type == Type to be TypeCheck(Type == Type)
          */
+
+		[HarmonyPatch(typeof(FVRFireArm), "Awake")]
+		[HarmonyPrefix]
+		public static bool AddSuppressorMount(FVRFireArm __instance)
+		{
+			for (int i = 0; i < __instance.AttachmentMounts.Count; i++)
+			{
+				Debug.Log(i);
+				if(__instance.AttachmentMounts[i].Type == FVRFireArmAttachementMountType.Suppressor)
+				{
+					Debug.Log("Already has sup mount!");
+					return true;
+				}
+			}
+
+			var SupMount = new GameObject();
+			var SMAM = SupMount.AddComponent<FVRFireArmAttachmentMount>();
+			SupMount.name = "_CursedSupressorMount";
+			var pos = __instance.MuzzlePos;
+			SupMount.transform.position = new Vector3(pos.transform.position.x, pos.transform.position.y, pos.transform.position.z);
+			SupMount.transform.rotation = new Quaternion(pos.transform.rotation.x, pos.transform.rotation.y, pos.transform.rotation.z, pos.transform.rotation.w);
+			SupMount.transform.parent = __instance.MuzzlePos;
+
+			SMAM.Parent = __instance;
+			SMAM.MyObject = __instance;
+			SMAM.Point_Front = SupMount.transform;
+			SMAM.Point_Rear = SupMount.transform;
+			SMAM.Type = FVRFireArmAttachementMountType.Suppressor;
+			SMAM.ScaleModifier = 1;
+			SMAM.ParentToThis = true;
+
+			var SMCC = SupMount.AddComponent<CapsuleCollider>();
+			SMCC.isTrigger = true;
+			SMCC.radius = 0.01f;
+			SMCC.height = 0.05f;
+			SMCC.direction = 2;
+
+			return true;
+		}
+
 
 		[HarmonyPatch(typeof(Revolver), "Awake")]
 		[HarmonyPrefix]
